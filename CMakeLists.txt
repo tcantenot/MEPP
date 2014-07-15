@@ -1,5 +1,5 @@
 # This is the CMake script for compiling MEPP
-# Martial TOLA - March 2014
+# Martial TOLA - June 2014
 IF(APPLE) #cmake .. -DCMAKE_C_FLAGS='-arch x86_64 -arch i386'
 	cmake_minimum_required(VERSION 2.8)
 else(APPLE)
@@ -25,7 +25,7 @@ endif (COMMAND cmake_policy)
 
 # Project configuration
 set(PRJ_NAME mepp)
-set(PRJ_VERSION 0.49.2) # TODO
+set(PRJ_VERSION 0.50.3) # TODO
 project( ${PRJ_NAME} )
 set(CMAKE_INSTALL_PREFIX "${CMAKE_CURRENT_BINARY_DIR}/${PRJ_NAME}_deploy")
 
@@ -47,6 +47,14 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
   endif( ${CMAKE_BUILD_TYPE} MATCHES "Debug" )
 endif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 #------------------------------------------------------------------------------
+# MSVC
+#------------------------------------------------------------------------------
+# /MP for multiple compilation units (cl.exe) ; without any value, it is set automatically depending on your number of main threads
+# If you are compiling on Windows, the preprocessor symbols 'min' or 'max' are defined. Do #define NOMINMAX to prevent windows.h from defining these symbols.
+if(MSVC)
+	SET (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP /D \"NOMINMAX\"")
+endif()
+#----------------------------------------------------------------------------
 
 file(
 	GLOB_RECURSE
@@ -265,7 +273,7 @@ if (WITH_QT5)
 	qt5_wrap_ui( UI_FILES ${all_ui_files} )
 	qt5_add_resources( RESOURCE_FILES src/mepp/mepp.qrc )
 else(WITH_QT5) 
-	qt4_wrap_cpp( MOC_FILES ${hxx_header_files} )
+	qt4_wrap_cpp( MOC_FILES ${hxx_header_files} OPTIONS -DBOOST_TT_HAS_OPERATOR_HPP_INCLUDED )
 	qt4_wrap_ui( UI_FILES ${all_ui_files} )
 	qt4_add_resources( RESOURCE_FILES src/mepp/mepp.qrc )
 endif(WITH_QT5)
